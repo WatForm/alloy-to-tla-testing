@@ -21,8 +21,10 @@
 
 	- `java -jar bin/org.alloytools.alloy.dist-6.2.0.jar exec model.als`
     runs ALL commands in model and produces output such as:
-    `00. run   run$1                    1/1     SAT
-	01. run   run$2                    1/1     SAT`
+    ```
+    00. run   run$1                    1/1     SAT
+	01. run   run$2                    1/1     SAT
+	```
 	This cmd also creates a directory called "model/".  Within this directory is:
 		- cmd-solution-0.md is a json file that is a rendered version of the instances for each cmd
 		- a json file - something to do with the instances, but since there are two commands, I'm not sure
