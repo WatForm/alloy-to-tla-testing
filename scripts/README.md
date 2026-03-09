@@ -21,8 +21,8 @@
 
 	- `java -jar bin/org.alloytools.alloy.dist-6.2.0.jar exec model.als`
     runs ALL commands in model and produces output such as:
-    00. run   run$1                    1/1     SAT
-	01. run   run$2                    1/1     SAT
+    `00. run   run$1                    1/1     SAT
+	01. run   run$2                    1/1     SAT`
 	This cmd also creates a directory called "model/".  Within this directory is:
 		- cmd-solution-0.md is a json file that is a rendered version of the instances for each cmd
 		- a json file - something to do with the instances, but since there are two commands, I'm not sure
@@ -50,7 +50,7 @@
 
 	- more details can be found at:
 	https://github.com/AlloyTools/org.alloytools.alloy/blob/master/org.alloytools.alloy.cli/src/main/java/org/alloytools/alloy/cli/CLI.java
-	
+
 * run tlc on all .tla/.cfg combinations and check against result running Alloy 6.2.0 (not dashplus)
 	- cmds are executed in Alloy 6.2.0 
 	- need to grep Alloy 6 and TLC results and make sure they agree for sat/unsat
