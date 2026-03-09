@@ -48,7 +48,9 @@
 	- to show all (textual) commands in the model:
 	`java -jar libs/org.alloytools.alloy.dist-6.2.0.jar commands model.als`
 
-
+	- more details can be found at:
+	https://github.com/AlloyTools/org.alloytools.alloy/blob/master/org.alloytools.alloy.cli/src/main/java/org/alloytools/alloy/cli/CLI.java
+	
 * run tlc on all .tla/.cfg combinations and check against result running Alloy 6.2.0 (not dashplus)
 	- cmds are executed in Alloy 6.2.0 
 	- need to grep Alloy 6 and TLC results and make sure they agree for sat/unsat
