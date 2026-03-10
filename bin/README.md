@@ -9,4 +9,4 @@
 
 * version of TLC
 
-* dashplus is in a sister directory?
+* dashplus is in a sister directory? or version of it here?
