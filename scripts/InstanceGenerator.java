@@ -3,46 +3,37 @@
 // jenv local 17.0.16
 // run this with 
 // javac -cp ../bin/org.alloytools.alloy.dist-6.2.0.jar InstanceGenerator.java
-// java -cp .:../bin/org.alloytools.alloy.dist-6.2.0.jar InstanceGenerator model.als scopeNum
+// java -cp .:../bin/org.alloytools.alloy.dist-6.2.0.jar InstanceGenerator model.als scopeNum numInstances
 
-// generates an .xml instance of model.als for each scope of 0 .. scopeNum inclusive
-// if no instance generated then no file written and the model is unsat at that scope
-
+// generates numInstances .xml instances of model.als for an EXACT scope of scopeNum for every top-level sig
+// if the model is unsat at that scope then no instance file is written 
+// writes the files in the same directory as model.als
+// overwrites any existing xml files of the same name
 
 import java.io.File;
-import java.util.Set;
-import java.util.HashSet;
+
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.stream.Collectors;
+import java.io.PrintWriter;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Element;
 
 import java.nio.file.Path;
 import java.nio.file.Files;
 import java.nio.charset.StandardCharsets;
-import java.io.PrintStream;
-import java.io.OutputStream;
+
 
 import edu.mit.csail.sdg.alloy4.A4Reporter;
-import edu.mit.csail.sdg.alloy4.XMLNode;
-
 import edu.mit.csail.sdg.ast.Sig;
-import edu.mit.csail.sdg.ast.Sig.PrimSig;
-import edu.mit.csail.sdg.ast.Sig.Field;
-
 import edu.mit.csail.sdg.parser.CompModule;
 import edu.mit.csail.sdg.parser.CompUtil;
 
 import edu.mit.csail.sdg.translator.A4Options;
 import edu.mit.csail.sdg.translator.A4Solution;
-import edu.mit.csail.sdg.translator.A4SolutionReader;
-import edu.mit.csail.sdg.translator.A4Tuple;
-import edu.mit.csail.sdg.translator.A4TupleSet;
+
+import edu.mit.csail.sdg.translator.A4SolutionWriter;
+
 import edu.mit.csail.sdg.translator.TranslateAlloyToKodkod;
 
 import kodkod.ast.Relation;
@@ -51,31 +42,38 @@ import kodkod.ast.Relation;
 public class InstanceGenerator {
 
     //private static final String RUN_CMD_FORMAT = "run {} for exactly %d";
-    private static final String INSTANCE_NAME_FORMAT = "%s-instance-%d.xml";
+    private static final String INSTANCE_NAME_FORMAT = "%s-instance-%d-%d.xml";
 
     private static String getCmd(List<String> topLevelSigs, Integer scope) {
         String sc = String.valueOf(scope);
-        return "run {} for "+sc + " but " +
+        if (topLevelSigs.isEmpty()) {
+            return "\nrun {}";
+        } else {
+            return "\nrun {} for "+ sc + " but " +
                     topLevelSigs.stream()
                         .map(s -> "exactly "+sc+" " + s)
-                        .collect(Collectors.joining(", "));
+                        .collect(Collectors.joining(", ")) +"\n\n";
+        }
 
     }
 
     public static void main(String[] args) throws Exception {
 
-        if (args.length != 2) {
-            System.err.println("FAIL: Args required: modelfileName scope");
+        if (args.length != 3) {
+            System.err.println("FAIL: Args required: modelfileName scope instanceNum");
             System.exit(1);
         }
 
         String modelFileName = args[0];
+
         // get absolutePath for file
         Path path = Path.of(modelFileName);  
         Path absolutePath = path.toAbsolutePath();
         String fullFileName = absolutePath.toString();
+        int dot = fullFileName.lastIndexOf(".");
         String outputFileNamePrefix =
-                fullFileName.substring(0, fullFileName.lastIndexOf("."));
+            dot == -1 ? fullFileName : fullFileName.substring(0, dot);
+
         if (!Files.exists(absolutePath)) {
             System.out.println("File does not exist: " + fullFileName);
             System.exit(1);
@@ -84,6 +82,12 @@ public class InstanceGenerator {
         Integer scope = Integer.parseInt(args[1]);
         if (! (scope >= 0)) {
             System.out.println("Scope must be >= 0");
+            System.exit(1);
+        }
+
+        Integer numInstances = Integer.parseInt(args[2]);
+        if (! (numInstances >= 1)) {
+            System.out.println("numInstances must be >= 1");
             System.exit(1);
         }
 
@@ -98,7 +102,7 @@ public class InstanceGenerator {
 
         List<String> topLevelSigs = new ArrayList<String>();
         
-        A4Reporter rep = A4Reporter.NOP;
+        A4Reporter rep = new A4Reporter();
         
         try {
             CompModule modelWorld = CompUtil.parseEverything_fromString(rep, modelString);
@@ -112,40 +116,50 @@ public class InstanceGenerator {
             System.exit(1);
         } 
 
+        String cmd = getCmd(topLevelSigs,scope);
+        String modelPlusCmd = modelString + cmd;
+        CompModule modelPlusCmdWorld = null;
         try {
-            A4Options opt = new A4Options();
-            A4Solution sol;
-            for (int k=0; k <= scope; k++) {
-                String cmd = getCmd(topLevelSigs,k);
-                //System.out.println(cmd);
-                String modelPlusCmd = modelString + cmd;
-                //System.out.println(modelPlusCmd);
-                String instanceFileName;
-                CompModule modelPlusCmdWorld = CompUtil.parseEverything_fromString(rep, modelPlusCmd);
-                // because we added one to it
-                int modelNumCmds = modelPlusCmdWorld.getAllCommands().size();
-                // suppress kodkod messages
-                System.setProperty("org.slf4j.simpleLogger.log.kodkod.engine.config", "warn");
-                sol = TranslateAlloyToKodkod.execute_command(
-                    rep, 
-                    modelPlusCmdWorld.getAllReachableSigs(), 
-                    modelPlusCmdWorld.getAllCommands().get(modelNumCmds-1), 
-                    opt); 
-                // it might not be satisfiable at one scope, but is satisfiable at the next scope
-                System.out.println("satisfiable: " + sol.satisfiable());
-                if (sol.satisfiable()) {
-                    instanceFileName = "test.xml"; // INSTANCE_NAME_FORMAT.formatted(outputFileNamePrefix, k);
-                    System.out.println(sol);
-                    sol.writeXML(instanceFileName);
-                    System.out.println("Wrote: "+ instanceFileName);
-                }
-            }
+            modelPlusCmdWorld = CompUtil.parseEverything_fromString(rep, modelPlusCmd);
         } catch (Exception e) {
-            System.out.println("FAIL: Alloy jar failed to parse model with cmd with message\n" + e.getMessage());
+            System.out.println("FAIL: Alloy jar failed to parse model + cmd with message\n" + e.getMessage());
             System.exit(1);
-        }        
-    }
+        } 
 
+        // because we added one to it
+        int modelNumCmds = modelPlusCmdWorld.getAllCommands().size();
+        // suppress kodkod messages
+        A4Options opt = new A4Options();
+        A4Solution sol = null;
+        System.setProperty("org.slf4j.simpleLogger.log.kodkod.engine.config", "warn");
+        try {
+            sol = TranslateAlloyToKodkod.execute_command(
+                rep, 
+                modelPlusCmdWorld.getAllReachableSigs(), 
+                modelPlusCmdWorld.getAllCommands().get(modelNumCmds-1), 
+                opt); 
+        } catch (Exception e) {
+            System.out.println("FAIL: Alloy jar failed to execute model + cmd with message\n" + e.getMessage());
+            System.exit(1);
+        } 
+        Integer k = 0;
+        while (sol.satisfiable() && k < numInstances) {
+            k++;
+            String instanceFileName = INSTANCE_NAME_FORMAT.formatted(outputFileNamePrefix, scope, k);
+            
+            try (PrintWriter out = new PrintWriter(new File(instanceFileName))) {
+                // sol.writeXML(instanceFileName) is flaky
+                // it worked within dashplus but here gives an error
+                // about extraSkolems not being initialized 
+                A4SolutionWriter.writeInstance(rep,sol,out,Collections.emptyList(), null); 
+            } catch (Exception e) {
+                System.out.println("FAIL: Alloy jar failed to write solution\n" + e.getMessage());
+                System.exit(1);
+            } 
+            System.out.println("Wrote: "+ instanceFileName);    
+            sol = sol.next();   
+        } 
+    }
 }
     
     
