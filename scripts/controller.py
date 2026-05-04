@@ -39,7 +39,7 @@ def controller(func_per_dsh_model):
             print("No files to test")
             break
 
-        dshfiles = sorted(
+        alsfiles = sorted(
             os.path.join(r, file)
             for r, d, f in os.walk(source)
             for file in f if file.endswith(".als")
@@ -47,11 +47,11 @@ def controller(func_per_dsh_model):
 
         futures = []
         with ThreadPoolExecutor(max_workers=config.num_threads) as executor:
-            for dshfile in dshfiles:
+            for alsfile in alsfiles:
                 if config.stop_on_first_fail and stop_event.is_set():
                     print("Stopping submission of new tests due to a failure.")
                     sys.exit(1)
-                futures.append(executor.submit(run_test, func_per_dsh_model, dshfile))
+                futures.append(executor.submit(run_test, func_per_dsh_model, alsfile))
             
             for future in futures:
                 try:
@@ -64,13 +64,13 @@ def controller(func_per_dsh_model):
     print("Passed: ", count_pass)
     print("Failed: ", count_fail)
 
-def run_test(func_per_dsh_model, dsh_model):
+def run_test(func_per_alloy_model, alloy_model):
     global count_pass
     global count_fail
     if stop_event.is_set():
         return
 
-    (cnt_pass, cnt_fail) = func_per_dsh_model(dsh_model)
+    (cnt_pass, cnt_fail) = func_per_alloy_model(alloy_model)
     with lock:
         count_pass += cnt_pass 
         count_fail += cnt_fail

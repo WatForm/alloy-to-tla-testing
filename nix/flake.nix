@@ -17,10 +17,15 @@
           alloy # enables the alloy5 command, which brings up the UI
           alloy6 # enables the alloy6 command, which brings up the UI
           tlaplus18 # running tla on the command line
+          openjdk25
         ];
 
 
         shellHook = ''
+          git clone https://github.com/WatForm/dashplus
+          cd ./dashplus
+          ./gradlew spotlessApply && ./gradlew releaseJar
+          cd ..
           echo "Welcome to the nix shell for dashplus testing!"
           echo "alloy5 -> run alloy 5 GUI"
           echo "alloy6 -> run alloy 6 GUI"
