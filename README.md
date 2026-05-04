@@ -9,3 +9,8 @@
 * is fuzz testing possible?
 
 ### Performance Tests
+
+### Todo:
+
+- manage dashplus cloning
+- running tlc

@@ -50,7 +50,7 @@ def setup(who):
 	elif who == "mkj":
 		# Mathew can set his own values for the script parameters here
 		sources = [
-			'./simple-models/'
+			'.models/simple-models/'
 			]
 	
 

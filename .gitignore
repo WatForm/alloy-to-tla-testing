@@ -1,7 +1,7 @@
 .vscode/
 
 # dash
-dashplus/
+libs/
 
 *.log.*
 
