@@ -30,7 +30,6 @@ def controller(func_per_dsh_model):
     print("verbose: "+str(config.verbose))
     print("stop_on_first_fail: "+str(config.stop_on_first_fail))
     print("timeout: " + str(config.timeout))
-    print("method: "+str(config.method)+"\n")
     print("num_threads: "+str(config.num_threads)+"\n")
 
     for source in config.sources:
