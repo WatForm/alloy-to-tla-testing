@@ -23,14 +23,7 @@
 
         shellHook = ''
 
-          mkdir -p ./libs
-          rm -rf ./libs
-          cd ./libs
-          git clone https://github.com/WatForm/dashplus
-          cd ./dashplus
-          ./gradlew spotlessApply && ./gradlew releaseJar
-          cd ..
-          cd ..
+          
 
           echo "Welcome to the nix shell for dashplus testing!"
           echo "alloy5 -> run alloy 5 GUI"

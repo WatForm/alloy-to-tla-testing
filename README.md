@@ -12,18 +12,7 @@ This repository is designed to test the translation from Alloy to TLA+, and the 
 
 2) Ensure that the java version locally installed is >= 25, by running `java --version`
 
-3) Ensure that `dashplus` is accessible, by running:
-
-```
-mkdir -p ./libs
-rm -rf ./libs
-cd ./libs
-git clone https://github.com/WatForm/dashplus
-cd ./dashplus
-./gradlew spotlessApply && ./gradlew releaseJar
-cd ..
-cd ..
-```
+3) Ensure that `dashplus` is accessible, by running `./scripts/setup.sh` - this sets up a local copy of `dashplus`, separate from any other copy stored locally. It is cloned from the github watform repository for dashplus.
 
 4) Ensure that python is installed locally, by running `python --version`
 
@@ -37,11 +26,13 @@ cd ..
 
 2) Enable flakes, which is an experimental feature of nix
 
-3) Run `nix develop ./nix` - this sets up all the dependencies needed, and creates a development shell where all the dependencies are present
+3) Run `nix develop ./nix` - this sets up all the dependencies needed, and creates a development shell where all the dependencies are present, except dashplus
 
-4) After testing, exit the shell to remove all dependencies
+4) Ensure that `dashplus` is accessible, by running `./scripts/setup.sh` - this sets up a local copy of `dashplus`, separate from any other copy stored locally. It is cloned from the github watform repository for dashplus.
 
-5) To clean up the artefacts, run `./scripts/cleanup.sh`
+5) After testing, exit the shell to remove all dependencies
+
+6) To clean up the artefacts, run `./scripts/cleanup.sh`
 
 
 
