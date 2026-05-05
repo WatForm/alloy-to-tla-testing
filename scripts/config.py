@@ -9,6 +9,8 @@ alloy = "alloy6"
 
 tlc = "tlc"
 
+targets = ".als"
+
 sources = [
 			'./models/simple-models'
 		]

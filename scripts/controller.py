@@ -20,13 +20,14 @@ count_fail = 0
 lock = Lock()
 stop_event = Event() 
 
-def controller(func_per_dsh_model):
+def controller(func_per_model):
 
     who = ""
     if len(sys.argv) > 1:
         who = sys.argv[1]
     config.setup(who)
     print("sources: "+str(config.sources))
+    print("targets: "+str(config.targets))
     print("verbose: "+str(config.verbose))
     print("stop_on_first_fail: "+str(config.stop_on_first_fail))
     print("timeout: " + str(config.timeout))
@@ -38,19 +39,19 @@ def controller(func_per_dsh_model):
             print("No files to test")
             break
 
-        alsfiles = sorted(
+        target_files = sorted(
             os.path.join(r, file)
             for r, d, f in os.walk(source)
-            for file in f if file.endswith(".als")
+            for file in f if file.endswith(config.targets)
         )
 
         futures = []
         with ThreadPoolExecutor(max_workers=config.num_threads) as executor:
-            for alsfile in alsfiles:
+            for f in target_files:
                 if config.stop_on_first_fail and stop_event.is_set():
                     print("Stopping submission of new tests due to a failure.")
                     sys.exit(1)
-                futures.append(executor.submit(run_test, func_per_dsh_model, alsfile))
+                futures.append(executor.submit(run_test, func_per_model, f))
             
             for future in futures:
                 try:
@@ -63,13 +64,13 @@ def controller(func_per_dsh_model):
     print("Passed: ", count_pass)
     print("Failed: ", count_fail)
 
-def run_test(func_per_alloy_model, alloy_model):
+def run_test(func_per_model, alloy_model):
     global count_pass
     global count_fail
     if stop_event.is_set():
         return
 
-    (cnt_pass, cnt_fail) = func_per_alloy_model(alloy_model)
+    (cnt_pass, cnt_fail) = func_per_model(alloy_model)
     with lock:
         count_pass += cnt_pass 
         count_fail += cnt_fail
