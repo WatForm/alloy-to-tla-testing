@@ -1,5 +1,7 @@
 # README.md
 
+This is not the README that describes the way to run scripts. The instructions shown in the README in the root folder of the repo contains accurate and up-to-date instructions.
+
 * scripts for getting models?  although we have to have instances for them so I guess we have to store the models themselves in this repo
 
 * run dashplus -tla -cmd .als to produce .tla/.cfg file for all models
