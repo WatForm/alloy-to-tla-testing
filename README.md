@@ -18,7 +18,7 @@ This repository is designed to test the translation from Alloy to TLA+, and the 
 mkdir -p ./libs
 rm -rf ./libs
 cd ./libs
-git clone https://github.com/WatForm/dash-testing
+git clone https://github.com/WatForm/dashplus
 cd ./dashplus
 ./gradlew spotlessApply && ./gradlew releaseJar
 cd ..
