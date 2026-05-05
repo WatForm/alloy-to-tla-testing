@@ -10,9 +10,8 @@ alloy = "alloy6"
 tlc = "tlc"
 
 sources = [
-			'../models/',
-			'./models/'
-			]
+			'./models/simple-models'
+		]
 verbose = True
 stop_on_first_fail = True
 timeout = 30000 # ms
