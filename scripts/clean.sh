@@ -7,3 +7,6 @@ find ./simple-models -name "out.tla" -type f -exec rm -i {} \;
 
 # remove all models within any folder named "states"
 find ./simple-models -type d -name "states" -exec find {} -type f -exec rm -i {} \;
+
+# remove logs generated during translation
+rm -f *.log*
