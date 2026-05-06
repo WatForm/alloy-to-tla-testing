@@ -2,7 +2,7 @@
 find ./models/simple-models -name "*.tla" -type f -exec rm {} \;
 find ./models/simple-models -name "*.cfg" -type f -exec rm {} \;
 find ./models/simple-models -name "*.out" -type f -exec rm {} \;
-
+find ./models/simple-models -name "*.als.json" -type f -exec rm {} \;
 
 
 # remove all models within any folder named "states"

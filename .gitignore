@@ -5,6 +5,7 @@
 libs/
 
 *.log.*
+*.als.json
 
 # tla
 *.tla

@@ -4,8 +4,8 @@
 # defaults
 dashplus = "java -ea -jar ../dashplus/app/build/libs/watform-dashplus.jar"
 
-# table gives output if sat; no output if not sat
-alloy = "alloy6"
+
+alloy = "java -jar ./bin/org.alloytools.alloy.dist-6.2.0.jar exec -f -o ./libs/alloy"
 
 tlc = "java -jar ./bin/tla2tools.jar"
 

@@ -16,9 +16,13 @@ This repository is designed to test the translation from Alloy to TLA+, and the 
 
 4) Ensure that python is installed locally, by running `python --version`
 
-5) Run the translation script: `python ./scripts/alloy_to_tla_translate.py`
+5) Run the translation script: `python ./scripts/translate_tla.py`
 
-6) To clean up the artefacts, run `./scripts/cleanup.sh`
+6) To run the generated code: `python ./scripts/run_tla.py`
+
+7) To run the Alloy files on the Analyzer: `python ./scripts/run_alloy.py`
+
+8) To clean up the artefacts, run `./scripts/cleanup.sh`
 
 ### Nix managed dependencies
 
