@@ -75,7 +75,7 @@ def run_test(func_per_model, alloy_model):
         count_pass += cnt_pass 
         count_fail += cnt_fail
         if cnt_fail>0 and config.stop_on_first_fail:
-            stop_event.set();
+            stop_event.set()
 
 # methods called by individual checks (see check_*.py files)
 

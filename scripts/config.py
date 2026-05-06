@@ -7,7 +7,7 @@ dashplus = "java -ea -jar ../dashplus/app/build/libs/watform-dashplus.jar"
 # table gives output if sat; no output if not sat
 alloy = "alloy6"
 
-tlc = "tlc"
+tlc = "java -jar ./bin/tla2tools.jar"
 
 targets = ".als"
 
@@ -28,6 +28,7 @@ def setup(who):
 	global timeout
 	global method
 	global num_threads
+	global targets
 	if who == "nad":
 		print("Nancy's settings")
 		# don't bother with setup each time; just run from sister directory
@@ -42,10 +43,31 @@ def setup(who):
 	elif who == "mkj":
 		print("Mathew's settings")
 		# Mathew can set his own values for the script parameters here
-		dashplus = "java -ea -jar ./dashplus/app/build/libs/watform-dashplus.jar"
 		
-	elif who == "local":
-		dashplus = "java -ea -jar ./dashplus/app/build/libs/watform-dashplus.jar"
+		
+	elif who == "local-translate":
+		
+		tlc = "java -jar ./bin/tla2tools.jar"
+
+	elif who == "local-run":
+		targets = ".tla"
+		
+		tlc = "java -jar ./bin/tla2tools.jar"
+
+	elif who == "test-translate":
+		sources = [
+			'./models/script-test'
+		]
+		targets = ".als"
+		
+		tlc = "java -jar ./bin/tla2tools.jar"
+	
+	elif who == "test-run":
+		sources = [
+			'./models/script-test'
+		]
+		targets = ".tla"
+		tlc = "java -jar ./bin/tla2tools.jar"
 	
 
 
