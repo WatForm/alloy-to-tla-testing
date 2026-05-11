@@ -3,4 +3,4 @@ sig A
 
 }
 
-run {}
+check {} for 2 A

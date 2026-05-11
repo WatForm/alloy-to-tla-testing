@@ -8,6 +8,7 @@ libs/
 *.als.json
 
 # tla
+*.bin
 *.tla
 *.cfg
 *.out

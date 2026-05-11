@@ -6,16 +6,19 @@ import os
 
 controller = Controller(".als",["./models/simple-models"])
 
+tmp_file = "./libs/alloy/receipt.json"
+
 def run_tla(path_name):
 
     cmd = f"{config.alloy} {path_name}"
 
     controller.run_command(cmd)
 
-    cmd = f"cp ./libs/alloy/receipt.json {path_name}.json"
+    cmd = f"cp {tmp_file} {path_name}.json"
 
     controller.run_command(cmd)
 
+    print("ran the Alloy Analyzer on "+path_name)
 
 
     

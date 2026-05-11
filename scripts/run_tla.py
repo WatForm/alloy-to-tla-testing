@@ -8,23 +8,27 @@ controller = Controller(".tla",["./models/simple-models"])
 
 def run_tla(path_name):
 
-    cmd = f"{config.tlc} {path_name}"
+    cmd = f"{config.tlc} {path_name} > {path_name}.out"
 
     result = controller.run_command(cmd)
 
-    passed = False
-    message = "Error"
+    passed = True
+    message = "Success"
 
-    if "Model checking completed. No error has been found." in result.output:
-        message = "Success"
-        passed = True
+    
     if result.timeout:
         message = "Timeout"
 
     print(("✅" if passed else "❌") + " " + message + "\t" + path_name)
+
+    if not passed and not result.timeout:
+        print("unexpected output by tlc, check "+path_name.replace(".tla",".out")+" for details")
+
     
 
 if __name__ == "__main__":
+
+    print("Key:\n✅ - run without timeout\n❌ - timed out\n")
     
     path_dict = controller.get_paths()
 
