@@ -17,7 +17,7 @@ sources = [
 verbose = True
 stop_on_first_fail = True
 timeout = 30000 # ms
-num_threads = 12  # Number of threads to use for running tests concurrently
+num_threads = 1  # Number of threads to use for running tests concurrently
 
 def setup(who):
 	global dashplus

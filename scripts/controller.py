@@ -13,6 +13,7 @@ RED = "\033[31m"
 RESET = "\033[0m"
 MAGENTA = "\033[35m"
 BLUE = "\033[34m"
+GREEN = "\033[32m"
 
 
 count_pass = 0
@@ -128,4 +129,4 @@ def common_err_response(cmd, output, err, time_taken):
 def common_pass_response(model, output, err, time_taken):
     if config.verbose:
         # eventually we may want to record this in a csv file
-        print(f"{BLUE}TEST RESULT: PASS, {model}, {time_taken}{RESET}")
+        print(f"{GREEN}TEST RESULT: PASS, {model}, {output}, {time_taken}{RESET}")
