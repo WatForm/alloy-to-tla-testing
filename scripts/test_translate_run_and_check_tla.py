@@ -33,6 +33,7 @@ def test_translate_run_and_time_tla(model_name):
 	time = 0 # this is meant to measure translation time + running time
 	(output,err,rc,time_taken) = run_command(cmd)
 	time += time_taken
+	tlc_run_time = time_taken
 
 	if rc != 0:
 		common_err_response(cmd, output, err, time)
@@ -52,6 +53,9 @@ def test_translate_run_and_time_tla(model_name):
 	(output,err,rc,time_taken) = run_command(cmd)
 	time_taken_alloy = time_taken
 
+
+	final_result = f"final result: {model_name}\nAnalyzer time: {time_taken_alloy}\nTLC run time: {tlc_run_time}\nTranslate and Run time: {time}"
+
 	if rc != 0:
 		common_err_response(cmd, output, err, time)
 		return (0,1)
@@ -61,7 +65,7 @@ def test_translate_run_and_time_tla(model_name):
 			analyzer_contents = json.load(f)
 			(correct, msg) = check_SAT_UNSAT(analyzer_contents, tla_output)
 			if correct:
-				common_pass_response(f"SAT/UNSAT correctness check {model_name}",msg,"",time)
+				common_pass_response(final_result,msg,"",time)
 				return (1,0)
 			else:
 				common_err_response(f"SAT/UNSAT correctness check {model_name}","",msg,time)
