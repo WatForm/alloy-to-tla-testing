@@ -1,5 +1,7 @@
 .vscode/
 
+# scripts
+scaffold/
 
 # dash
 libs/

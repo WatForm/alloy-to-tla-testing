@@ -50,6 +50,7 @@ def test_translate_run_and_time_tla(model_name):
 
 	cmd = f"{config.alloy} {model_name}"
 	(output,err,rc,time_taken) = run_command(cmd)
+	time_taken_alloy = time_taken
 
 	if rc != 0:
 		common_err_response(cmd, output, err, time)

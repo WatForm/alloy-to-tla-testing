@@ -2,11 +2,11 @@
 # modify this file with each person's config for the tests
 
 # defaults
+RECEIPT_FOLDER = "./libs/alloy"
+RECEIPT_FILE = RECEIPT_FOLDER + "/receipt.json"
+
 dashplus = "java -ea -jar ../dashplus/app/build/libs/watform-dashplus.jar"
-
-
-alloy = "java -jar ./bin/org.alloytools.alloy.dist-6.2.0.jar exec -f -o ./libs/alloy"
-
+alloy = "java -jar ./bin/org.alloytools.alloy.dist-6.2.0.jar exec -f -o "+RECEIPT_FOLDER
 tlc = "java -jar ./bin/tla2tools.jar"
 
 targets = ".als"
@@ -43,31 +43,6 @@ def setup(who):
 	elif who == "mkj":
 		print("Mathew's settings")
 		# Mathew can set his own values for the script parameters here
-		
-		
-	elif who == "local-translate":
-		
-		tlc = "java -jar ./bin/tla2tools.jar"
-
-	elif who == "local-run":
-		targets = ".tla"
-		
-		tlc = "java -jar ./bin/tla2tools.jar"
-
-	elif who == "test-translate":
-		sources = [
-			'./models/script-test'
-		]
-		targets = ".als"
-		
-		tlc = "java -jar ./bin/tla2tools.jar"
-	
-	elif who == "test-run":
-		sources = [
-			'./models/script-test'
-		]
-		targets = ".tla"
-		tlc = "java -jar ./bin/tla2tools.jar"
 	
 
 
