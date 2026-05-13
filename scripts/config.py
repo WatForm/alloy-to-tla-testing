@@ -12,11 +12,11 @@ tlc = "java -jar ./bin/tla2tools.jar"
 targets = ".als"
 
 sources = [
-			'./models/simple-models'
+			'./models/extreme-models'
 		]
 verbose = True
 stop_on_first_fail = True
-timeout = 30000 # ms
+timeout = 3000 # ms
 num_threads = 1  # Number of threads to use for running tests concurrently
 
 def setup(who):
