@@ -5,77 +5,58 @@ import json
 
 
 def check_SAT_UNSAT(analyzer, tlc):
-
-	if "commands" not in analyzer:
-		return (False, "unexpected receipt.json file structure"+str(analyzer))
-	keys = list(analyzer["commands"].keys())
-	if len(keys) == 0:
-		return (False, "unexpected receipt.json file structure"+str(analyzer))
 	
-	analyzer_SAT = "solution" in analyzer["commands"][keys[0]]
+	analyzer_SAT = "Solution index" in analyzer
 
 	if analyzer_SAT and "Invariant _command is violated by the initial state:" in tlc:
 		return (True, "SAT")
 	elif (not analyzer_SAT) and "Model checking completed. No error has been found." in tlc:
 		return (True, "UNSAT")
-	
 
 	return (False, "unexpected outcome")
 
 
 def test_translate_run_and_time_tla(model_name):
 
-
 	tla_path = model_name.replace(".als",".tla")
 
-	cmd = f"{config.dashplus} -tla {model_name}"
+	translation_response = run_command(f"{config.dashplus} -tla {model_name}")
 
-	time = 0 # this is meant to measure translation time + running time
-	(output,err,rc,time_taken) = run_command(cmd)
-	time += time_taken
-	tlc_run_time = time_taken
-
-	if rc != 0:
-		common_err_response(cmd, output, err, time)
+	if not translation_response.ok():
+		test_fail(model_name,compose_message(translation_response))
 		return (0,1)
 
-	cmd = f"{config.tlc} {tla_path}"
-	(output,err,rc,time_taken) = run_command(cmd)
-	time+=time_taken
+	tlc_run_response = run_command(f"{config.tlc} {tla_path}")
+	if not tlc_run_response.ok():
+		if tlc_run_response.return_code == 1 and tlc_run_response.stderr == "":
+			test_fail(model_name,compose_message(tlc_run_response))
+			return (0,1)
 
-	if err in ["Timeout", "Exception"]:
-		common_err_response(cmd, output, err, time)
+	analyzer_run_response = run_command(f"{config.alloy} {model_name}")
+	if not analyzer_run_response.ok():
+		test_fail(model_name,compose_message(analyzer_run_response))
 		return (0,1)
 
-	tla_output = output + "\n" + err
+	tlc_output = tlc_run_response.stdout + "\n" + tlc_run_response.stderr
+	(correct, msg) = check_SAT_UNSAT(analyzer_run_response.stdout, tlc_output)
 
-	cmd = f"{config.alloy} {model_name}"
-	(output,err,rc,time_taken) = run_command(cmd)
-	time_taken_alloy = time_taken
-
-
-	final_result = f"final result: {model_name}\nAnalyzer time: {time_taken_alloy}\nTLC run time: {tlc_run_time}\nTranslate and Run time: {time}"
-
-	if rc != 0:
-		common_err_response(cmd, output, err, time)
+	final_result = f"""
+Analyzer time: {analyzer_run_response.time}
+TLC run time: {tlc_run_response.time}
+Translation and Run time: {tlc_run_response.time + translation_response.time}
+		"""
+	
+	if correct:
+		test_pass(model_name, final_result)
+		return (1,0)
+	else:
+		test_fail(model_name, f"possibly incorrect SAT/UNSAT")
 		return (0,1)
 
-	try:
-		with open("./libs/alloy/receipt.json") as f:
-			analyzer_contents = json.load(f)
-			(correct, msg) = check_SAT_UNSAT(analyzer_contents, tla_output)
-			if correct:
-				common_pass_response(final_result,msg,"",time)
-				return (1,0)
-			else:
-				common_err_response(f"SAT/UNSAT correctness check {model_name}","",msg,time)
-				return (0,1)
-	except Exception as error:
-		common_err_response("reading receipt","",str(error),time)
-		return (0,1)
 
-	common_err_response("", "", "something went wrong", time)
+	test_fail(model_name, "something went wrong")
 	return (0,1)
+	
 
 
 if __name__ == "__main__":

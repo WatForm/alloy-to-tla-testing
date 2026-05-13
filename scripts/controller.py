@@ -10,10 +10,36 @@ from concurrent.futures import ThreadPoolExecutor
 from threading import Lock, Event
 
 RED = "\033[31m"
-RESET = "\033[0m"
 MAGENTA = "\033[35m"
 BLUE = "\033[34m"
 GREEN = "\033[32m"
+RESET = "\033[0m"
+
+def color(c: str,msg: str):
+    return c+msg+RESET
+
+class Response:
+    def __init__(self,cmd: str,stdout: str,stderr: str,time: int, return_code: int, isTimeout: bool = False,isException: bool = False):
+        self.cmd = cmd
+        self.time = time
+        self.stdout = stdout
+        self.stderr = stderr
+        self.return_code = return_code
+        self.isException = isException
+        self.isTimeout = isTimeout
+    
+    def ok(self):
+        return not self.isTimeout and not self.isException and self.return_code == 0
+    
+    def __str__(self):
+        return f"""
+        cmd: {self.cmd}
+        time: {self.time}
+        return code: {self.return_code}
+        stdout: {self.stdout}
+        stderr: {self.stderr}
+        """
+
 
 
 count_pass = 0
@@ -80,7 +106,7 @@ def run_test(func_per_model, alloy_model):
 
 # methods called by individual checks (see check_*.py files)
 
-def run_command(cmd):
+def run_command(cmd: str) -> Response:
     
     start = time.perf_counter()
     with subprocess.Popen(
@@ -99,7 +125,8 @@ def run_command(cmd):
             rc = p.returncode
             end = time.perf_counter()
             elapsed = end - start
-            return (output, err, rc, elapsed)
+            return Response(cmd,output,err,elapsed,rc)
+            # return (output, err, rc, elapsed)
 
         except subprocess.TimeoutExpired:
             p.kill()
@@ -111,10 +138,12 @@ def run_command(cmd):
             rc = p.returncode
             end = time.perf_counter()
             elapsed = end - start
-            return ("", "Timeout", 1, elapsed)
+            return Response(cmd,"","",elapsed,rc,isTimeout=True)
+            # return ("", "Timeout", 1, elapsed)
         except Exception as e:
             print(f"Error running test: {cmd}")
-            return ("", "Exception", 1, 0)
+            return Response(cmd,"","",elapsed,1,isException=True)
+            # return ("", "Exception", 1, 0)
 
 def common_err_response(cmd, output, err, time_taken):
     if time_taken >= config.timeout:
@@ -130,3 +159,16 @@ def common_pass_response(model, output, err, time_taken):
     if config.verbose:
         # eventually we may want to record this in a csv file
         print(f"{GREEN}TEST RESULT: PASS, {model}, {output}, {time_taken}{RESET}")
+
+def test_fail(model_name, message):
+    print(color(RED,f"FAILED: {model_name} {message}"))
+
+def test_pass(model_name, message):
+    print(color(GREEN,f"PASSED: {model_name} {message}"))
+
+def compose_message(response: Response) -> str:
+    if response.isTimeout:
+        return "Timeout"
+    if response.isException:
+        return "Exception"
+    return str(message)
