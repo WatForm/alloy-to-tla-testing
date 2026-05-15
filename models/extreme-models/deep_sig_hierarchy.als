@@ -39,4 +39,4 @@ sig ZZ extends Z {}
 sig ZZZ extends ZZ {}
 sig ZZZZ extends ZZZ {}
 
-run {}
+check {}

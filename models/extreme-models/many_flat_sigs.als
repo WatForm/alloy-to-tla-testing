@@ -18,4 +18,9 @@ sig D2 {}
 sig D3 {}
 sig D4 {}
 
+fact {
+	some A1
+	no A1
+}
+
 check {}
