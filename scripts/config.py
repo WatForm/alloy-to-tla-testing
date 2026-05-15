@@ -12,7 +12,7 @@ tlc = "java -jar ./bin/tla2tools.jar"
 targets = ".als"
 
 sources = [
-			'./models/extreme-models'
+			'./models/simple-models'
 		]
 verbose = True
 stop_on_first_fail = True
