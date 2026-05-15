@@ -11,6 +11,7 @@ libs/
 
 # tla
 *.bin
+*.tlc
 *.tla
 *.cfg
 *.out
