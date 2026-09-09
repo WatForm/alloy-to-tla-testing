@@ -8,6 +8,7 @@ RECEIPT_FILE = RECEIPT_FOLDER + "/receipt.json"
 dashplus = "java -ea -jar ../dashplus/app/build/libs/watform-dashplus.jar"
 alloy = "java -jar ./bin/org.alloytools.alloy.dist-6.2.0.jar exec -f -o -"
 tlc = "java -jar ./bin/tla2tools.jar"
+apalache = "java -jar ./bin/apalache.jar"
 
 targets = ".als"
 
