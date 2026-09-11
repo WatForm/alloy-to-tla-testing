@@ -1,5 +1,7 @@
 import config
 from controller import *
+from accumulator import *
+from generate_csv import *
 import os
 import json
 
@@ -16,7 +18,11 @@ def check_SAT_UNSAT(analyzer, tlc):
 	return (False, "unexpected outcome")
 
 
+timeData = Accumulator()
+
 def test_translate_run_and_time_tla(model_name):
+
+	global timeData
 
 	tla_path = model_name.replace(".als",".tla")
 
@@ -45,7 +51,10 @@ Analyzer time: {analyzer_run_response.time}
 TLC run time: {tlc_run_response.time}
 Translation and Run time: {tlc_run_response.time + translation_response.time}
 		"""
-	
+
+	timeData.log(tlc_run_response.cmd, TestTimeResult(tlc_run_response.time,translation_response.time,0))
+
+
 	if correct:
 		test_pass(model_name, final_result)
 		return (1,0)
@@ -61,3 +70,4 @@ Translation and Run time: {tlc_run_response.time + translation_response.time}
 
 if __name__ == "__main__":
     controller(test_translate_run_and_time_tla) 
+    write_csv("test_translate_run_and_check_tla.csv",timeData.table.keys())
