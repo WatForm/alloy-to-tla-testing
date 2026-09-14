@@ -6,7 +6,9 @@
 
   # https://devenv.sh/packages/
   packages = [ 
-    
+    pkgs.alloy5
+    pkgs.alloy6
+    pkgs.tlaplus18
    ];
 
   # https://devenv.sh/languages/
