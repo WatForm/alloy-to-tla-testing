@@ -1,5 +1,46 @@
 { pkgs, lib, config, inputs, ... }:
 
+let
+  # 1. Fetch the specific Apalache release zip file securely
+  apalacheZip = pkgs.fetchurl {
+    url = "https://github.com/apalache-mc/apalache/releases/download/v0.62.2/apalache.zip";
+    # If this placeholder hash mismatches, Nix will throw an error 
+    # and print the exact 'got: sha256-...' string you can paste here.
+    hash = "sha256-9ztrfiDaMElHv3vkSDJQI+MPokYLcNZhK4uUV0Oe0iE=";
+  };
+
+  # 2. Extract the archive and wrap it into a clean Nix package
+  apalacheCustom = pkgs.stdenv.mkDerivation {
+    pname = "apalache";
+    version = "0.62.2";
+
+    src = apalacheZip;
+
+    # Require unzip to extract the file, and makeWrapper to configure the executable binary
+    nativeBuildInputs = [ pkgs.unzip pkgs.makeWrapper ];
+
+    # Override standard unpack phases because release zips lack typical source structures
+    unpackCmd = "unzip $src";
+
+    installPhase = ''
+      # Replicate standard directory structures inside the Nix store
+      mkdir -p $out/share/apalache
+      mkdir -p $out/bin
+
+      # Copy all extracted contents (lib/, bin/, etc.) into the share directory
+      cp -r * $out/share/apalache/
+
+      # Make the main shell script executable
+      chmod +x $out/share/apalache/bin/apalache-mc
+
+      # Wrap the apalache-mc script so it can explicitly find its global dependencies
+      makeWrapper $out/share/apalache/bin/apalache-mc $out/bin/apalache-mc \
+        --prefix PATH : ${lib.makeBinPath [ pkgs.openjdk ]} \
+        --set JAVA_HOME ${pkgs.openjdk}/home
+    '';
+  };
+in
+
 {
   # https://devenv.sh/basics/
   env.GREET = "devenv";
@@ -9,6 +50,8 @@
     pkgs.alloy5
     pkgs.alloy6
     pkgs.tlaplus18
+    pkgs.openjdk25
+    apalacheCustom
    ];
 
   # https://devenv.sh/languages/
