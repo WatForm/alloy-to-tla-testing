@@ -1,12 +1,14 @@
 { pkgs, lib, config, inputs, ... }:
 
 let
+
+  dashplusHash = "sha256-EeF2ThyTD2wFHPtKcS4kLVWnkArnWFOYnW6HwNtAges=";
+  apalacheHash = "sha256-9ztrfiDaMElHv3vkSDJQI+MPokYLcNZhK4uUV0Oe0iE=";
+
   # 1. Fetch the specific Apalache release zip file securely
   apalacheZip = pkgs.fetchurl {
     url = "https://github.com/apalache-mc/apalache/releases/download/v0.62.2/apalache.zip";
-    # If this placeholder hash mismatches, Nix will throw an error 
-    # and print the exact 'got: sha256-...' string you can paste here.
-    hash = "sha256-9ztrfiDaMElHv3vkSDJQI+MPokYLcNZhK4uUV0Oe0iE=";
+    hash = apalacheHash;
   };
 
   # 2. Extract the archive and wrap it into a clean Nix package
@@ -39,6 +41,15 @@ let
         --set JAVA_HOME ${pkgs.openjdk}/home
     '';
   };
+
+  dashplusSrc = pkgs.fetchFromGitHub {
+      owner = "WatForm";
+      repo = "dashplus";
+      rev = "alloytotla";
+      sha256 = dashplusHash; # Run 'devenv shell' once; Nix will error and provide the correct SHA
+    };
+
+
 in
 
 {
@@ -75,10 +86,22 @@ in
   '';
 
   # https://devenv.sh/tasks/
-  # tasks = {
-  #   "myproj:setup".exec = "mytool build";
-  #   "devenv:enterShell".after = [ "myproj:setup" ];
-  # };
+  tasks = {
+    "project:build-jar" = {
+      exec = ''
+        echo "📂 Setting up alloytotla.jar"
+        WORKSPACE_DIR="./build-workspace"
+        rm -rf "$WORKSPACE_DIR"
+        mkdir -p "$WORKSPACE_DIR"
+        cp -r ${dashplusSrc}/. "$WORKSPACE_DIR/"
+        chmod -R +w "$WORKSPACE_DIR"
+        cd "$WORKSPACE_DIR"
+        chmod +x ./gradlew
+        ./gradlew alloytotla --no-daemon
+      '';
+    };
+    "devenv:enterShell".after = [ "project:build-jar" ];
+  };
 
   # https://devenv.sh/tests/
   enterTest = ''
